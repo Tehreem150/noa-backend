@@ -1,6 +1,3 @@
-// backend/api/translate.js
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,6 +17,7 @@ export default async function handler(req, res) {
     if (!text || !sourceLang || !targetLang)
       return res.status(400).json({ error: "Missing required fields" });
 
+    // Use native fetch (Vercel provides it)
     const response = await fetch(
       `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
         text
@@ -27,9 +25,9 @@ export default async function handler(req, res) {
     );
 
     const data = await response.json();
-    return res.status(200).json({ translatedText: data.responseData.translatedText });
+    res.status(200).json({ translatedText: data.responseData.translatedText });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: error.message });
+    console.error(error); // Log error in Vercel
+    res.status(500).json({ error: error.message });
   }
 }
