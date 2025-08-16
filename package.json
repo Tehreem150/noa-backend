@@ -1,6 +1,6 @@
 {
   "name": "noa-backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "dependencies": {}
+  "type": "module",
+  "main": "index.js"
 }
