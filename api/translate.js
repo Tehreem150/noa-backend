@@ -1,10 +1,11 @@
-import axios from "axios";
+// backend/api/translate.js
 import Cors from "cors";
+import axios from "axios";
 
 // Initialize CORS middleware
 const cors = Cors({
   methods: ["POST", "OPTIONS"],
-  origin: "https://noa-frontend-six.vercel.app", // frontend URL
+  origin: "https://noa-frontend-six.vercel.app", // your frontend URL
 });
 
 // Helper to run middleware in Next.js API
@@ -26,30 +27,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { text, targetLang } = req.body;
+  const { text, sourceLang, targetLang } = req.body;
 
-  // Validate request body
-  if (!text || !targetLang) {
+  // Validate required fields
+  if (!text || !sourceLang || !targetLang) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    // Call your translation API
-    const response = await axios.post(
-      process.env.TRANSLATION_API_URL,
-      { text, targetLang },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.API_KEY}`,
-          "Content-Type": "application/json", // ensure JSON
-        },
-      }
-    );
+    // Call LibreTranslate API
+    const response = await axios.post("https://libretranslate.com/translate", {
+      q: text,
+      source: sourceLang,
+      target: targetLang,
+      format: "text",
+    });
 
-    // Return translated text
+    // Send translated text back
     res.status(200).json({ translatedText: response.data.translatedText });
   } catch (error) {
-    console.error("Translation error:", error.response?.data || error.message);
+    console.error(
+      "Translation API error:",
+      error.response?.data || error.message
+    );
     res.status(500).json({ error: "Translation failed" });
   }
 }
